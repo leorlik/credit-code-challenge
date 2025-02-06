@@ -178,3 +178,32 @@ def fill_na_by(df: pd.DataFrame, column: str = "None", method: str = 'mean') -> 
             raise ValueError("Método inválido")
         
     return df
+
+def get_skew_and_variance(df: pd.DataFrame) -> pd.DataFrame: 
+    """
+    Função que retorna o deslocamento da distribuição e a variância de cada coluna de um DataFrame
+
+    Parâmetros
+    ----------
+    df : pd.DataFrame
+        DataFrame a ser analisado
+
+    Retorno
+    -------
+    pd.DataFrame
+        DataFrame com o nome da coluna, o deslocamento da distribuição e a variância
+    """
+
+    columns_list = []
+    skewness_list = []
+    variance_list = []
+    for column in df.columns:
+
+        skewness = df[column].dropna().skew()
+        variance = df[column].dropna().var()
+
+        columns_list.append(column)
+        skewness_list.append(skewness)
+        variance_list.append(np.round(variance, 3))
+
+    return pd.DataFrame({"Column": columns_list, "Skewness": skewness_list, "Variance": variance_list})
