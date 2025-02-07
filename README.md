@@ -249,6 +249,6 @@ O recall decai com o aumento de threshold, como esperado nos conjuntos desbalanc
 
 Já a curva ROC:
 
-![](https://github.com/leorlik/credit-code-challenge/blob/main/graficos/linha_metrica/curva_roc.png)
+![](https://github.com/leorlik/credit-code-challenge/blob/main/graficos/curva_roc.png)
 
 Indica proximidade com a linha aleatória, mostrando dificuldades no modelo de distinguir as classes, havendo espaço para melhora, porém considerando a dificuldade em separar certas amostras, o modelo proposto é um bom ponto de partida.
