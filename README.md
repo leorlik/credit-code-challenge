@@ -2,6 +2,8 @@
 
 ## 1. Apresentação
 
+Este projeto visa um problema de predizer o target da variável y de um dataset mascarado.
+
 ## 2. Estrutura do projeto:
 
 - **artifacts**: 
@@ -172,4 +174,81 @@ Por ser um problema extremamente multivariado, o tratamento de outliers pode ser
 
 ## 5. Modelagem:
 
+### Escolha do Modelo
+
+A Regressão Logística foi escolhida para o modelo pois é simples e obteve uma das melhores performances, prezando pela explicabilidade, além de ser rápida de treinar.
+
+### Normalização
+
+Os dados foram normalizados utilizando Z-Score devido à sensibilidade da escala e boas práticas. Com média 0 e desvio padrão 1, nenhum dado domina outro.
+
+### PCA
+
+Foi utilizado o PCA para redução de componentes. O principal motivo, além de reduzir a complexidade, foi que aumentou levemente as métricas.
+
+### Balanceamento de classes
+
+Para mitigação do problema de desbalanceamento, o ADASYN (Adaptive Synthetic Sampling) foi utilizado. O ADASYN adapta a geração de exemplos com base na dificuldade da classificação de pontos próximos a fronteira de decisão, dando ênfase para o modelo aprender mais com a classe menos presente.
+
+### Parâmetros
+
+A escolha dos parâmetros foi feita utilizando GridSearch, em que o relevante é a regularização inversa (C) igual a 0.1 e a regularização l2, esta última suspeita, pois este problema se apresentou, nos testes, supeitos ao overfitting.
+
+### Código
+
+O código da classe do modelo se encontra [aqui](https://github.com/leorlik/credit-code-challenge/blob/main/src/modeloClassificacao.py), enquanto a validação e execução estão [neste notebook](https://github.com/leorlik/credit-code-challenge/blob/main/notebooks/prototipo.ipynb).
+ 
 # 6. Resultados
+
+## Teste
+
+Fazer o modelo enxergar a classe desbalanceada foi um desafio, pois a decisão parecia deveras complexa para quaisquer modelo. No fim, a regressão obteve os seguintes resultados no teste:
+
+| Classe | Precisão | Recall | F1-Score | Suporte |
+|--------|----------|--------|----------|---------|
+| 0      | 0.80     | 0.74   | 0.77     | 539     |
+| 1      | 0.55     | 0.63   | 0.59     | 269     |
+| **Acurácia** | -        | -      | 0.70     | 808     |
+| **Macro avg** | 0.67     | 0.69   | 0.68     | 808     |
+| **Weighted avg** | 0.72     | 0.70   | 0.71     | 808     |
+
+E abaixo a matriz de confusão:
+
+|               | Predito 0 | Predito 1 |
+|---------------|-----------|-----------|
+| **Real 0**    | 399       | 140       |
+| **Real 1**    | 99        | 170       |
+
+Prever a classe minoritária se mostrou difícil para todos os modelos testados, sendo este o modelo que melhor equilibra a previsão das classes. Naturalmente, este é o tipo de trade-off que deve ser validado com o negócio para priorizar a assertividade em uma classe, se necessário. 
+
+Enquanto na classe 0 a precisão e o recall (0.8 e 0.74), com f1-score de 0.77, o modelo indica bom desempenho na classe majoritária. Já na classe 1, a precisão foi de 0.55 e o recall de 0.63. Com um f1-score de 0.59, ainda existe dificuldade na previsão da classe minoritária. Como o f1-score ponderado é 0.71 e a acurácia geral (esta influenciada pela classe maior) é de 70%, mesmo com desequilibrio nas classes, se o objetivo do modelo, como foi aqui, é ser o mais justo possível com as duas classes, ele alcança desempenho razoável.
+
+## Validação
+
+Em validação, os seguintes resultados se apresentaram:
+
+| Classe | Precisão | Recall | F1-Score | Suporte |
+|--------|----------|--------|----------|---------|
+| 0      | 0.76     | 0.68   | 0.72     | 509     |
+| 1      | 0.50     | 0.60   | 0.55     | 277     |
+| **Acurácia** | -        | -      | 0.65     | 786     |
+| **Macro avg** | 0.63     | 0.64   | 0.63     | 786     |
+| **Weighted avg** | 0.67     | 0.65   | 0.66     | 786     |
+
+Com a seguinte matriz de confusão:
+
+![](https://github.com/leorlik/credit-code-challenge/blob/main/graficos/confusion_matrix.png)
+
+Enquanto na classe 0, a precisão e o recall foram de 0.76 e 0.68, com f1-score de 0.72, o modelo indica bom desempenho na classe majoritária. Já na classe 1, a precisão foi de 0.50 e o recall de 0.60. Com um f1-score de 0.55, ainda existe dificuldade na previsão da classe minoritária. Como o f1-score ponderado é 0.66 e a acurácia geral (influenciada pela classe maior) é de 65%, o modelo se demonstrou piorar um pouco no conjunto de validação, como se esperar, mas não o suficiente para indicar overfitting grotesto.
+
+Abaixo a curva de evolução das métricas:
+
+![](https://github.com/leorlik/credit-code-challenge/blob/main/graficos/linha_metricas.png)
+
+O recall decai com o aumento de threshold, como esperado nos conjuntos desbalanceados. O F1 tem um pico intermediário próximo do padrão de 0.5, o que indica que o ajuste de threshold não é necessário neste caso. O trade-off entre precisão e recall fica bem claro no gráfico.
+
+Já a curva ROC:
+
+![](https://github.com/leorlik/credit-code-challenge/blob/main/graficos/linha_metrica/curva_roc.png)
+
+Indica proximidade com a linha aleatória, mostrando dificuldades no modelo de distinguir as classes, havendo espaço para melhora, porém considerando a dificuldade em separar certas amostras, o modelo proposto é um bom ponto de partida.
